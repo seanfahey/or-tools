@@ -64,15 +64,16 @@ RUN git clone -b "${SRC_GIT_BRANCH}" --single-branch https://github.com/google/o
 && echo "sha1: $(cd or-tools && git rev-parse --verify HEAD)" \
 && echo "expected sha1: ${SRC_GIT_SHA1}"
 
-# Build third parties
-FROM devel AS third_party
-WORKDIR /root/or-tools
-RUN make detect \
-&& make third_party BUILD_PYTHON=OFF BUILD_JAVA=ON BUILD_DOTNET=ON
-
 # Build project
-FROM third_party AS build
-RUN make detect_cc \
-&& make detect_java \
-&& make detect_dotnet
-RUN make compile JOBS=4
+FROM devel AS build
+WORKDIR /root/or-tools
+
+ARG BUILD_LANG
+ENV BUILD_LANG ${BUILD_LANG:-cpp}
+
+RUN make detect_${BUILD_LANG} \
+&& make ${BUILD_LANG} JOBS=4
+
+# Create archive
+FROM build AS archive
+RUN make archive_${BUILD_LANG}
