@@ -250,7 +250,9 @@ add_subdirectory(ortools/model_builder/wrappers)
 target_sources(${PROJECT_NAME} PRIVATE $<TARGET_OBJECTS:${PROJECT_NAME}_model_builder_wrappers>)
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_model_builder_wrappers)
 
-# Install rules
+###################
+## Install rules ##
+###################
 include(GNUInstallDirs)
 include(GenerateExportHeader)
 GENERATE_EXPORT_HEADER(${PROJECT_NAME})
@@ -313,6 +315,22 @@ ${PROJECT_BINARY_DIR}/bundle-install.cmake
 @ONLY)
 install(SCRIPT ${PROJECT_BINARY_DIR}/bundle-install.cmake)
 endif()
+
+#################
+## C++ Package ##
+#################
+set(CPP_PROJECT_DIR ${PROJECT_BINARY_DIR}/cxx})
+
+add_custom_command(
+  OUTPUT ${DOTNET_PROJECT_DIR}/timestamp
+  COMMENT "Generate C++ archive (${CPP_PROJECT_DIR}/timestamp)"
+  WORKING_DIRECTORY ${DOTNET_PROJECT_DIR})
+
+add_custom_target(cpp_archive
+  DEPENDS
+    ${CPP_PROJECT_DIR}/archive_timestamp
+    WORKING_DIRECTORY ${CPP_PROJECT_DIR})
+
 
 # add_cxx_sample()
 # CMake function to generate and build C++ sample.
